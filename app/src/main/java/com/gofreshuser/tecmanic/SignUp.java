@@ -71,9 +71,9 @@ public class SignUp extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     CallbackManager callbackManager;
 
-
-    FirebaseAuth auth;
-    DatabaseReference reference;
+//
+//    FirebaseAuth auth;
+//    DatabaseReference reference;
 
     //-------------------------------------------------
 
@@ -113,8 +113,8 @@ public class SignUp extends AppCompatActivity {
         loginButton=findViewById(R.id.loginfb);
 
 
-        auth=FirebaseAuth.getInstance();
-        reference= FirebaseDatabase.getInstance().getReference();
+//        auth=FirebaseAuth.getInstance();
+//        reference= FirebaseDatabase.getInstance().getReference();
 
 
         TextView textView = (TextView) signInButton.getChildAt(0);
@@ -181,8 +181,7 @@ public class SignUp extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                attemptRegister();
-                createfirebaseaccount(email_add.getText().toString(),create_pass.getText().toString());
+                attemptRegister();
 
             }
         });
@@ -360,7 +359,7 @@ public class SignUp extends AppCompatActivity {
                     imgurl="https://graph.facebook.com/"+id+"/picture?type=normal";
 
 
-                    createfirebaseaccount(email,Baseurl.fixpassword);
+                    makeRegisterRequest(first_names+last_names,"",email,Baseurl.fixpassword);
 
 
 //                    makeRegisterRequest(first_names+last_names,"",email,Baseurl.fixpassword);
@@ -418,7 +417,7 @@ public class SignUp extends AppCompatActivity {
 
 
 
-                createfirebaseaccount(email,Baseurl.fixpassword);
+                makeRegisterRequest(personName,"",email,Baseurl.fixpassword);
 
             }else {
                 email_add.setText("abc");
@@ -434,29 +433,29 @@ public class SignUp extends AppCompatActivity {
 
 
 
-    public  void  createfirebaseaccount(String emails,String password){
-        auth.createUserWithEmailAndPassword(emails,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-
-                if(task.isSuccessful()){
-
-                    String userid=auth.getCurrentUser().getUid();
-                    reference.child("Users").child(userid).setValue("");
-
-
-
-
-                    makeRegisterRequest(first_names+last_names,"",email,Baseurl.fixpassword);
-
-//                    startActivity(new Intent(SignUp.this,Login.class));
-
-                    Toast.makeText(SignUp.this, "User Created", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(SignUp.this, task.getException()+"", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-    }
+//    public  void  createfirebaseaccount(String emails, String password, final String fullname){
+//        auth.createUserWithEmailAndPassword(emails,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<AuthResult> task) {
+//
+//                if(task.isSuccessful()){
+//
+//                    String userid=auth.getCurrentUser().getUid();
+//                    reference.child("Users").child(userid).setValue("");
+//
+//
+//
+//
+//                    makeRegisterRequest(fullname,"",email,Baseurl.fixpassword);
+//
+////                    startActivity(new Intent(SignUp.this,Login.class));
+//
+//                    Toast.makeText(SignUp.this, "User Created", Toast.LENGTH_SHORT).show();
+//                }else{
+//                    Toast.makeText(SignUp.this, task.getException()+"", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        });
+//
+//    }
 }

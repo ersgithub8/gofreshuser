@@ -2,7 +2,10 @@ package com.gofreshuser.tecmanic;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,15 +21,32 @@ import com.android.volley.Response;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.gofreshuser.Config.Baseurl;
 import com.gofreshuser.util.ConnectivityReceiver;
 import com.gofreshuser.util.CustomVolleyJsonRequest;
 import com.gofreshuser.util.Session_management;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +58,18 @@ public class Login extends AppCompatActivity {
     Button back;
     TextView forget;
     ProgressDialog progressDialog;
+
+
+    //-------------------------------------------------
+    SignInButton signInButton;
+    LoginButton loginButton;
+    GoogleSignInClient googleSignInClient;
+    CallbackManager callbackManager;
+
+
+
+    String first_names="",last_names="",email="",id="",imgurl="",phone="";
+    //---------------------------------------
 
     public static String TAG="Signin";
 
@@ -94,6 +126,69 @@ forget.setOnClickListener(new View.OnClickListener() {
         });
 
 
+
+
+        //-----------------------------------------------------------------------
+        signInButton=findViewById(R.id.gsignin);
+        loginButton=findViewById(R.id.loginfb);
+
+
+//        auth=FirebaseAuth.getInstance();
+//        reference= FirebaseDatabase.getInstance().getReference();
+
+
+        TextView textView = (TextView) signInButton.getChildAt(0);
+        textView.setText("Google");
+
+
+        callbackManager=CallbackManager.Factory.create();
+
+
+        loginButton.setReadPermissions(Arrays.asList("email","public_profile"));
+
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                Toast.makeText(Login.this, loginResult+"", Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onCancel() {
+
+                Toast.makeText(Login.this, "Operation Cancelled", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+//                email_add.setText(error+"");
+            }
+        });
+
+
+
+
+
+        // Configure sign-in to request the user's ID, email address, and basic
+// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
+
+        signInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Sigin();
+            }
+        });
+        //-----------------------------------------------------------------------
     }
     private void makeLoginRequest(String email, final String password) {
 
@@ -209,4 +304,108 @@ login.setEnabled(false);
         //TODO: Replace this with your own logic
         return email.contains("@");
     }
+
+
+
+    //----------------------------------------------------------------------
+    AccessTokenTracker tokenTracker=new AccessTokenTracker() {
+        @Override
+        protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+            if(currentAccessToken==null){
+
+            }else{
+                loaduserprofile(currentAccessToken);
+            }
+        }
+    };
+    public  void loaduserprofile(AccessToken accessToken){
+        GraphRequest graphRequest=GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+
+                try {
+                    first_names=object.getString("first_name");
+                    last_names=object.getString("last_name");
+                    email=object.getString("email");
+                    id=object.getString("id");
+//                     phone=object.getString("mobile_phone");
+                    imgurl="https://graph.facebook.com/"+id+"/picture?type=normal";
+
+
+//                    makeRegisterRequest(first_names+last_names,"",email,Baseurl.fixpassword);
+                    makeLoginRequest(email,Baseurl.fixpassword);
+
+
+//                    makeRegisterRequest(first_names+last_names,"",email,Baseurl.fixpassword);
+
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Bundle parameters=new Bundle();
+        parameters.putString("fields","first_name,last_name,email,id");
+        graphRequest.setParameters(parameters);
+        graphRequest.executeAsync();
+    }
+    //-----------------------------------------------------------------------------------------
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        callbackManager.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
+
+//-----------------------GOOGLE-------------------------------------
+        if(requestCode==0){
+//            Toast.makeText(this, data+"", Toast.LENGTH_SHORT).show();
+            Task<GoogleSignInAccount> task=GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSigninResult(task);
+        }
+    }
+
+    //---------------------------------------------------------------------------------------
+    private void Sigin() {
+        Intent signinIntent=googleSignInClient.getSignInIntent();
+        startActivityForResult(signinIntent,0);
+    }
+
+    private void handleSigninResult(Task<GoogleSignInAccount> task) {
+        try {
+            GoogleSignInAccount account=task.getResult(ApiException.class);
+
+
+
+
+            GoogleSignInAccount account1=GoogleSignIn.getLastSignedInAccount(Login.this);
+            if(account1 !=null){
+                String personName=account1.getDisplayName();
+//                String personGivenName=account.getGivenName();
+//                String personFamilyName=account.getFamilyName();
+                email=account1.getEmail();
+
+                String personId=account1.getId();
+                Uri personphoto=account1.getPhotoUrl();
+
+
+
+//                makeRegisterRequest(personName,"",email,Baseurl.fixpassword);
+
+                makeLoginRequest(email,Baseurl.fixpassword);
+            }else {
+                Toast.makeText(this, "No data found.", Toast.LENGTH_SHORT).show();
+            }
+
+        }catch (Exception e){
+            Toast.makeText(this, e+"", Toast.LENGTH_SHORT).show();;
+        }
+    }
+
+
+    //--------------------------------------------------------------------------------------
+
+
+
 }
