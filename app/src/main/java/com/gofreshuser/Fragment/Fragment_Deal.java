@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,6 +50,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -219,8 +222,8 @@ sorttextview.setText(sorttext);
                     else {
 
                         show_cat.hideShimmerAdapter();
-
-                        Toast.makeText(getActivity(), "No Data", Toast.LENGTH_SHORT).show();
+                        new SweetAlertDialog(getContext(),SweetAlertDialog.ERROR_TYPE).setTitleText("No Data Found")
+                                .setConfirmButtonBackgroundColor(Color.RED).show();
 
                     }
                 } catch (JSONException e) {

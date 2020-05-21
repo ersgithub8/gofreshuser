@@ -50,6 +50,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class Login extends AppCompatActivity {
 
     EditText email_add,password;
@@ -192,6 +194,16 @@ forget.setOnClickListener(new View.OnClickListener() {
     }
     private void makeLoginRequest(String email, final String password) {
 
+
+        final SweetAlertDialog loading=new SweetAlertDialog(this,SweetAlertDialog.PROGRESS_TYPE)
+                .setTitleText("Please Wait")
+                ;
+        loading.getProgressHelper().setBarColor(getResources().getColor(R.color.apc));
+        loading.setCancelable(false);
+        loading.show();
+
+
+
         // Tag used to cancel the request
         String tag_json_obj = "json_login_req";
         Map<String, String> params = new HashMap<String, String>();
@@ -206,6 +218,7 @@ forget.setOnClickListener(new View.OnClickListener() {
                 Log.d(TAG, response.toString());
 
                 try {
+                    loading.dismiss();
                     Boolean status = response.getBoolean("responce");
                     if (status) {
                         JSONObject obj = response.getJSONObject("data");
@@ -237,6 +250,7 @@ login.setEnabled(false);
                         Toast.makeText(Login.this, "" + error, Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
+                    loading.dismiss();
                     e.printStackTrace();
                 }
             }
@@ -244,8 +258,10 @@ login.setEnabled(false);
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                loading.dismiss();
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                    loading.dismiss();
                     Toast.makeText(Login.this, getResources().getString(R.string.connection_time_out), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -291,7 +307,7 @@ login.setEnabled(false);
                 // perform the user login attempt.
 
                 if (ConnectivityReceiver.isConnected()) {
-                    progressDialog.show();
+//                    progressDialog.show();
 
                     makeLoginRequest(getemail, getpassword);
                 }

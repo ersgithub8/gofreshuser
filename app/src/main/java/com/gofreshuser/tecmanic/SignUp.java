@@ -3,6 +3,7 @@ package com.gofreshuser.tecmanic;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -55,6 +56,8 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class SignUp extends AppCompatActivity {
 
@@ -417,10 +420,13 @@ public class SignUp extends AppCompatActivity {
 
 
 
-                makeRegisterRequest(personName,"+923224479645",email,Baseurl.fixpassword);
+                makeRegisterRequest(personName,"",email,Baseurl.fixpassword);
 
             }else {
-                email_add.setText("abc");
+                new SweetAlertDialog(this,SweetAlertDialog.ERROR_TYPE)
+                        .setConfirmButtonBackgroundColor(Color.RED)
+                .setTitleText("Something Went Wrong")
+                .show();
             }
 
         }catch (Exception e){

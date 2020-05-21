@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -42,6 +43,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -152,7 +155,8 @@ public class Fragment_Seeall_cat extends Fragment {
                     }
                     else {
                         show_cat.hideShimmerAdapter();
-                        Toast.makeText(getActivity(), "No Data", Toast.LENGTH_SHORT).show();
+                        new SweetAlertDialog(getContext(),SweetAlertDialog.ERROR_TYPE).setTitleText("No Data Found")
+                                .setConfirmButtonBackgroundColor(Color.RED).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
